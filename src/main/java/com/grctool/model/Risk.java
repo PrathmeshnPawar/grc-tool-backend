@@ -3,12 +3,12 @@ package com.grctool.model;
 import com.grctool.enums.RiskCategory;
 import com.grctool.enums.RiskStatus;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.validation.constraints.Max;
@@ -21,7 +21,10 @@ import lombok.Setter;
 @Setter
 public class Risk extends BaseEntity {
 
+    @Column(nullable = false)
     private String title;
+
+    @Column(length = 2000)
     private String description;
 
     @Enumerated(EnumType.STRING)
@@ -29,26 +32,28 @@ public class Risk extends BaseEntity {
 
     @Min(1)
     @Max(5)
-    private int impact; // 1–5
+    private int impact;
 
     @Min(1)
     @Max(5)
-    private int likelihood; // 1–5
+    private int likelihood;
 
-   
-    private int riskScore; // impact * likelihood
+    private int riskScore;
 
     @Enumerated(EnumType.STRING)
     private RiskStatus status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User owner;
 
-    @PostLoad
-    @PostPersist
-    @PreUpdate
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Incident incident;
+
+
+
     @PrePersist
-    public int getRiskScore() {
-        return this.riskScore = this.impact * this.likelihood;
+    @PreUpdate
+    private void calculateRiskScore() {
+        this.riskScore = this.impact * this.likelihood;
     }
 }

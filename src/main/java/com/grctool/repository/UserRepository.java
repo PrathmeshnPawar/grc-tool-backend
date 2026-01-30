@@ -5,6 +5,8 @@ import com.grctool.model.User;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserRepository extends JpaRepository<User  , UUID> {
+public interface UserRepository extends JpaRepository< User ,UUID > {
     List<User> findByRole(com.grctool.enums.Role role);
+
+    List<User> findUserById(UUID id);
 }

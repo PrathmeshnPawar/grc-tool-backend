@@ -8,8 +8,8 @@ import com.grctool.model.Audit;
 
 import java.util.List;
 
-public interface AuditRepository extends JpaRepository<UUID, Audit>{
-    List<Audit> findByEntityId(UUID entityId);
+public interface AuditRepository extends JpaRepository<Audit, UUID>{
+    List<Audit> findByAuditId(UUID id);
 
-    List<Audit> findByAuditStatus(com.grctool.enums.AuditStatus auditStatus);
+    List<Audit> findByStatus(com.grctool.enums.AuditStatus auditStatus);
 }

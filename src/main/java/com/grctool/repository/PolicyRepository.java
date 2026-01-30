@@ -5,6 +5,8 @@ import java.util.UUID;
 import com.grctool.model.Policy;
 import java.util.List;
 
-public interface PolicyRepository extends JpaRepository<Policy, UUID> {
-    List<Policy> findByFrameworkId(UUID frameworkId);
+public interface PolicyRepository extends JpaRepository<Policy,UUID > {
+    List<Policy> findByPolicyId(UUID id);
+
+    List<Policy> findByStatus  (com.grctool.enums.PolicyStatus status);
 }
