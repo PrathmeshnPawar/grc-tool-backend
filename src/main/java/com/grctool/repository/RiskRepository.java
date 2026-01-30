@@ -1,21 +1,23 @@
 package com.grctool.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.grctool.enums.RiskCategory;
+import com.grctool.enums.RiskStatus;
 import com.grctool.model.Risk;
-import java.util.List;
 
-public interface RiskRepository extends JpaRepository<Risk,UUID > {
-    List<Risk> findByCategory(com.grctool.enums.RiskCategory riskCategory);
+public interface RiskRepository extends JpaRepository<Risk, UUID> {
 
-    List<Risk> findRiskById(UUID id);
+    List<Risk> findByCategory(RiskCategory category);
 
-    List<Risk> findByStatus(com.grctool.enums.RiskStatus riskStatus);
+    List<Risk> findByStatus(RiskStatus status);
 
-    List<Risk> findBySeverity(com.grctool.enums.RiskSeverity riskSeverity);
+    List<Risk> findByOwner_Id(UUID ownerId);
 
-    // Find all risks associated with a specific incident to show in a 'linked items' view
-List<Risk> findByIncident_Id(UUID incidentId);
+    List<Risk> findByIncident_Id(UUID incidentId);
+
+    List<Risk> findByRiskScoreGreaterThanEqual(int riskScore);
 }

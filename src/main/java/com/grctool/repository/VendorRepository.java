@@ -3,16 +3,15 @@ package com.grctool.repository;
 import java.util.List;
 import java.util.UUID;
 
-import com.grctool.model.Vendor;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface VendorRepository extends JpaRepository<Vendor,UUID > {
-    List<Vendor> findByRiskStatus(com.grctool.enums.RiskCategory riskCategory);
+import com.grctool.enums.VendorStatus;
+import com.grctool.enums.VendorTier;
+import com.grctool.model.Vendor;
 
-    List<Vendor> findByTier(com.grctool.enums.VendorTier vendorTier);
+public interface VendorRepository extends JpaRepository<Vendor, UUID> {
 
-    List<Vendor> findByStatus(com.grctool.enums.VendorStatus vendorStatus);
+    List<Vendor> findByStatus(VendorStatus status);
 
-    List<Vendor> findVendorById(Vendor id);
+    List<Vendor> findByTier(VendorTier tier);
 }

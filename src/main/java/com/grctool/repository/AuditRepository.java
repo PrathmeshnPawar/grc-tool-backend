@@ -1,15 +1,18 @@
 package com.grctool.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.grctool.enums.AuditStatus;
 import com.grctool.model.Audit;
 
-import java.util.List;
+public interface AuditRepository extends JpaRepository<Audit, UUID> {
 
-public interface AuditRepository extends JpaRepository<Audit, UUID>{
-    List<Audit> findByAuditId(UUID id);
+    List<Audit> findByStatus(AuditStatus status);
 
-    List<Audit> findByStatus(com.grctool.enums.AuditStatus auditStatus);
+    List<Audit> findByAuditor_Id(UUID auditorId);
+
+    List<Audit> findByRisk_Id(UUID riskId);
 }

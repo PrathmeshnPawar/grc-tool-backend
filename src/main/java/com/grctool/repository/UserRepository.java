@@ -1,12 +1,19 @@
 package com.grctool.repository;
 
-import java.util.UUID;
-import com.grctool.model.User;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserRepository extends JpaRepository< User ,UUID > {
-    List<User> findByRole(com.grctool.enums.Role role);
+import com.grctool.enums.Role;
+import com.grctool.model.User;
 
-    List<User> findUserById(UUID id);
+public interface UserRepository extends JpaRepository<User, UUID> {
+
+    Optional<User> findByEmail(String email);
+
+    Optional<User> findByUsername(String username);
+
+    List<User> findByRole(Role role);
 }

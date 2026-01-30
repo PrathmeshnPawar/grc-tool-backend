@@ -1,12 +1,16 @@
 package com.grctool.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.UUID;
-import com.grctool.model.Policy;
 import java.util.List;
+import java.util.UUID;
 
-public interface PolicyRepository extends JpaRepository<Policy,UUID > {
-    List<Policy> findByPolicyId(UUID id);
+import org.springframework.data.jpa.repository.JpaRepository;
 
-    List<Policy> findByStatus  (com.grctool.enums.PolicyStatus status);
+import com.grctool.enums.PolicyStatus;
+import com.grctool.model.Policy;
+
+public interface PolicyRepository extends JpaRepository<Policy, UUID> {
+
+    List<Policy> findByStatus(PolicyStatus status);
+
+    List<Policy> findByOwner_Id(UUID ownerId);
 }
