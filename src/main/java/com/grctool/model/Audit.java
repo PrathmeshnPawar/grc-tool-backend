@@ -9,6 +9,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
@@ -25,17 +27,18 @@ public class Audit extends BaseEntity {
     private LocalDate endDate;
 
     @OneToOne
-    private User LeadAuditor;
+    private User leadAuditor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-Risk risk;
+    Risk risk;
 
     @Enumerated(EnumType.STRING)
     private AuditStatus status;
 
     @ManyToMany
-Set<ComplianceControl> testedControls;
+    @JoinTable(name = "audit_tested_controls", joinColumns = @JoinColumn(name = "audit_id"), inverseJoinColumns = @JoinColumn(name = "control_id"))
+    Set<ComplianceControl> testedControls;
 
-@ManyToMany
-Set<Policy> reviewedPolicies;
+    @ManyToMany
+    Set<Policy> reviewedPolicies;
 }

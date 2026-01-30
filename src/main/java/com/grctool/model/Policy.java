@@ -4,9 +4,12 @@ import java.util.Set;
 
 import com.grctool.enums.PolicyStatus;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
@@ -21,6 +24,9 @@ public class Policy extends BaseEntity {
     private String title;
     private String version;
 
+    @Column(length = 3000)
+    private String description;
+
     @Enumerated(EnumType.STRING)
     private PolicyStatus status;
 
@@ -34,5 +40,7 @@ public class Policy extends BaseEntity {
     private ComplianceFramework framework;
 
     @ManyToMany
-Set<ComplianceControl> controls;
+    @JoinTable(name = "policy_controls", joinColumns = @JoinColumn(name = "policy_id"), inverseJoinColumns = @JoinColumn(name = "control_id"))
+    Set<ComplianceControl> controls;
+
 }
