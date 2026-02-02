@@ -33,4 +33,7 @@ public class AuditResult extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String findings;
+
+    @Column(nullable=false)
+    private String evidenceUrl;
 }

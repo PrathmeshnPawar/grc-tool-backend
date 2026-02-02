@@ -21,4 +21,6 @@ public interface RiskService {
     void changeStatus(UUID riskId, RiskStatus status);
 
     List<RiskResponseDTO> getHighRisks(int threshold);
+
+    List<RiskResponseDTO> getAllRisks();
 }

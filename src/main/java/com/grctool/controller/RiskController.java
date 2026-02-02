@@ -36,6 +36,12 @@ public class RiskController {
         return riskService.createRisk(dto);
     }
 
+    @GetMapping
+    public List<RiskResponseDTO> getAllRisk() {
+        return  riskService.getAllRisks();
+    }
+    
+
     @PutMapping("/{riskId}")
     public RiskResponseDTO update(
             @PathVariable UUID riskId,

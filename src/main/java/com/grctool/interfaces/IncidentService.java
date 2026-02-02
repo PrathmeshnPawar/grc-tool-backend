@@ -1,5 +1,6 @@
 package com.grctool.interfaces;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.grctool.dto.incident.IncidentCreateDTO;
@@ -14,4 +15,8 @@ public interface IncidentService {
     IncidentResponseDTO updateIncident(UUID incidentId, IncidentUpdateDTO dto);
 
     void changeStatus(UUID incidentId, IncidentStatus status);
+
+    IncidentResponseDTO getIncidentById(UUID incidentId);
+
+    List<IncidentResponseDTO> getAllIncidents();
 }

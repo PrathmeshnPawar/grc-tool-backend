@@ -13,5 +13,13 @@ public interface VendorRepository extends JpaRepository<Vendor, UUID> {
 
     List<Vendor> findByStatus(VendorStatus status);
 
+    List<Vendor> findByName(String name);
+
+    List<Vendor> findByContactEmail(String contactEmail);
+
+    Vendor findByNameAndContactEmail(String name, String contactEmail);
+
+    // Removed the typo method; use the built-in findById() instead
+    
     List<Vendor> findByTier(VendorTier tier);
 }

@@ -1,5 +1,6 @@
 package com.grctool.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,9 @@ import com.grctool.enums.IncidentStatus;
 import com.grctool.interfaces.IncidentService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/incidents")
@@ -28,6 +32,12 @@ public class IncidentController {
     ) {
         return incidentService.createIncident(dto);
     }
+
+    @GetMapping()
+    public List<IncidentResponseDTO> getAllIncidents() {
+        return incidentService.getAllIncidents();
+    }
+    
 
     // -------- UPDATE INCIDENT --------
     @PutMapping("/{incidentId}")

@@ -17,7 +17,6 @@ import com.grctool.model.User;
 import com.grctool.repository.IncidentRepository;
 import com.grctool.repository.RiskRepository;
 import com.grctool.repository.UserRepository;
-import com.grctool.service.RiskCalculatorService;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -61,6 +60,16 @@ public class RiskServiceImpl implements RiskService {
         }
 
         return toResponse(riskRepository.save(risk));
+    }
+    // ---------------- READ ALL RISKS ----------------
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RiskResponseDTO> getAllRisks() {
+        return riskRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     // ---------------- UPDATE ----------------
@@ -139,8 +148,8 @@ public class RiskServiceImpl implements RiskService {
                 risk.getLikelihood(),
                 risk.getRiskScore(),
                 risk.getStatus(),
+                risk.getCreatedAt(),
                 risk.getOwner() != null ? risk.getOwner().getId() : null,
-                risk.getIncident() != null ? risk.getIncident().getId() : null
-        );
+                risk.getIncident() != null ? risk.getIncident().getId() : null);
     }
 }

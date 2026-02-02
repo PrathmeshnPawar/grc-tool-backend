@@ -74,17 +74,17 @@ public class AuditServiceImpl implements AuditService {
             audit.setReviewedPolicies(new HashSet<>(policyRepository.findAllById(dto.reviewedPolicyIds())));
         }
 
-        // After saving the audit
+        // Save the audit first to get an ID for AuditResults
         Audit savedAudit = auditRepository.save(audit);
 
         // Initialize empty results for each tested control
-        if (audit.getTestedControls() != null) {
-            List<AuditResult> initialResults = audit.getTestedControls().stream()
+        if (savedAudit.getTestedControls() != null) {
+            List<AuditResult> initialResults = savedAudit.getTestedControls().stream()
                     .map(control -> {
                         AuditResult result = new AuditResult();
                         result.setAudit(savedAudit);
                         result.setControl(control);
-                        result.setStatus(AuditResultStatus.INCONCLUSIVE); // Initial state
+                        result.setStatus(AuditResultStatus.INCONCLUSIVE);
                         return result;
                     }).toList();
             auditResultRepository.saveAll(initialResults);
@@ -93,44 +93,54 @@ public class AuditServiceImpl implements AuditService {
         return toResponse(savedAudit);
     }
 
-    // ---------------- GET ALL AUDITS ----------------
+    // ---------------- READ ----------------
+
     @Override
     @Transactional(readOnly = true)
     public List<AuditResponseDTO> getAllAudits() {
         return auditRepository.findAll().stream()
-                .map(this::toResponse) // Using your existing toResponse method
+                .map(this::toResponse)
                 .toList();
     }
 
-    //---------------- GET BY ID ----------------
     @Override
     @Transactional(readOnly = true)
     public AuditResponseDTO getAuditById(UUID auditId) {
-        Audit audit = getAudit(auditId);
-        return toResponse(audit);
+        return toResponse(getAudit(auditId));
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AuditResponseDTO> getAuditsByStatus(AuditStatus status) {
+        return auditRepository.findByStatus(status).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AuditResponseDTO> getAuditsByRisk(UUID riskId) {
+        return auditRepository.findByRisk_Id(riskId).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     // ---------------- UPDATE ----------------
 
     @Override
     public AuditResponseDTO updateAudit(UUID auditId, AuditUpdateDTO dto) {
         Audit audit = getAudit(auditId);
-
         audit.setName(dto.name());
         audit.setStartDate(dto.startDate());
         audit.setEndDate(dto.endDate());
-
         return toResponse(audit);
     }
-
-    // ---------------- STATE ----------------
 
     @Override
     public void assignLeadAuditor(UUID auditId, UUID auditorId) {
         Audit audit = getAudit(auditId);
-
         User auditor = userRepository.findById(auditorId)
                 .orElseThrow(() -> new EntityNotFoundException("Auditor not found"));
-
         audit.setLeadAuditor(auditor);
     }
 
@@ -140,24 +150,21 @@ public class AuditServiceImpl implements AuditService {
         audit.setStatus(status);
     }
 
-    // ---------------- READ ----------------
+    // ---------------- RESULT SUBMISSION ----------------
 
     @Override
-    @Transactional(readOnly = true)
-    public List<AuditResponseDTO> getAuditsByStatus(AuditStatus status) {
-        return auditRepository.findByStatus(status)
+    public void submitControlResult(UUID auditId, AuditResultRequestDTO dto) {
+        // Find the specific result record initialized during createAudit
+        AuditResult result = auditResultRepository.findByAuditIdAndControlId(auditId, dto.controlId())
                 .stream()
-                .map(this::toResponse)
-                .toList();
-    }
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("No result record found for this control in this audit"));
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<AuditResponseDTO> getAuditsByRisk(UUID riskId) {
-        return auditRepository.findByRisk_Id(riskId)
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        result.setStatus(dto.status());
+        result.setFindings(dto.findings());
+        result.setEvidenceUrl(dto.evidenceUrl()); // Now correctly persisting the evidence link
+
+        auditResultRepository.save(result);
     }
 
     // ---------------- HELPERS ----------------
@@ -166,7 +173,6 @@ public class AuditServiceImpl implements AuditService {
         return auditRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Audit not found"));
     }
-    
 
     private AuditResponseDTO toResponse(Audit audit) {
         return new AuditResponseDTO(
@@ -182,23 +188,8 @@ public class AuditServiceImpl implements AuditService {
                         : Set.of(),
                 audit.getReviewedPolicies() != null
                         ? audit.getReviewedPolicies().stream().map(Policy::getId).collect(Collectors.toSet())
-                        : Set.of());
+                        : Set.of(),
+                null // Matches the 10th parameter (globalEvidenceSummary) in your AuditResponseDTO
+        );
     }
-
-    // ---------------- RESULT SUBMISSION ----------------
-    @Override
-    public void submitControlResult(UUID auditId, AuditResultRequestDTO dto) {
-        // Find the specific result record for this audit and control
-        AuditResult result = auditResultRepository.findByAuditIdAndControlId(auditId, dto.controlId())
-                .stream()
-                .findFirst()
-                .orElseThrow(
-                        () -> new EntityNotFoundException("No result record found for this control in this audit"));
-
-        result.setStatus(dto.status());
-        result.setFindings(dto.findings());
-
-        auditResultRepository.save(result);
-    }
-
 }

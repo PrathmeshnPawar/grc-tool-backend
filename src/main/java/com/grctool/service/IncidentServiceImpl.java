@@ -1,5 +1,6 @@
 package com.grctool.service;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -44,6 +45,21 @@ public class IncidentServiceImpl implements IncidentService {
         );
 
         return toResponse(incidentRepository.save(incident));
+    }
+
+    @Override
+    public IncidentResponseDTO getIncidentById(UUID incidentId) {
+        Incident incident = getIncident(incidentId);
+        return toResponse(incident);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<IncidentResponseDTO> getAllIncidents() {
+        return incidentRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Override

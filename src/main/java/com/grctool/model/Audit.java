@@ -50,4 +50,5 @@ public class Audit extends BaseEntity {
         inverseJoinColumns = @JoinColumn(name = "policy_id")
     )
     private Set<Policy> reviewedPolicies;
+    
 }
