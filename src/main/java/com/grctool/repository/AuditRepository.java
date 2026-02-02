@@ -12,7 +12,6 @@ public interface AuditRepository extends JpaRepository<Audit, UUID> {
 
     List<Audit> findByStatus(AuditStatus status);
 
-    List<Audit> findByAuditor_Id(UUID auditorId);
-
+List<Audit> findByLeadAuditor_Id(UUID auditorId);
     List<Audit> findByRisk_Id(UUID riskId);
 }

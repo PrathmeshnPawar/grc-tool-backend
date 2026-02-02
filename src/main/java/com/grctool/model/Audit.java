@@ -30,15 +30,24 @@ public class Audit extends BaseEntity {
     private User leadAuditor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    Risk risk;
+    private Risk risk;
 
     @Enumerated(EnumType.STRING)
     private AuditStatus status;
 
     @ManyToMany
-    @JoinTable(name = "audit_tested_controls", joinColumns = @JoinColumn(name = "audit_id"), inverseJoinColumns = @JoinColumn(name = "control_id"))
-    Set<ComplianceControl> testedControls;
+    @JoinTable(
+        name = "audit_tested_controls",
+        joinColumns = @JoinColumn(name = "audit_id"),
+        inverseJoinColumns = @JoinColumn(name = "control_id")
+    )
+    private Set<ComplianceControl> testedControls;
 
     @ManyToMany
-    Set<Policy> reviewedPolicies;
+    @JoinTable(
+        name = "audit_reviewed_policies",
+        joinColumns = @JoinColumn(name = "audit_id"),
+        inverseJoinColumns = @JoinColumn(name = "policy_id")
+    )
+    private Set<Policy> reviewedPolicies;
 }

@@ -1,13 +1,11 @@
 package com.grctool.model;
 
-import java.util.Set;
-
-import com.grctool.enums.RiskStatus;
+import com.grctool.enums.VendorStatus;
+import com.grctool.enums.VendorTier;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,12 +18,9 @@ public class Vendor extends BaseEntity {
     private String contactEmail;
 
     @Enumerated(EnumType.STRING)
-    private RiskStatus riskStatus;
+    private VendorStatus status;
 
-    @OneToMany
-Set<Risk> risks;
-
-@OneToMany
-Set<Incident> incidents;
+    @Enumerated(EnumType.STRING)
+    private VendorTier tier;
 }
     

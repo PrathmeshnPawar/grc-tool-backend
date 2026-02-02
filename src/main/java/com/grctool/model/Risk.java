@@ -1,5 +1,7 @@
 package com.grctool.model;
 
+import java.util.Set;
+
 import com.grctool.enums.RiskCategory;
 import com.grctool.enums.RiskStatus;
 
@@ -8,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -49,6 +52,8 @@ public class Risk extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Incident incident;
 
+@ManyToMany(mappedBy = "risks")
+private Set<ComplianceControl> controls;
 
 
     @PrePersist

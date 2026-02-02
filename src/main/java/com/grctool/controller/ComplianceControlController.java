@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/compliance")
 @RequiredArgsConstructor
-public class ComplianceController {
+public class ComplianceControlController {
 
     private final ComplianceService complianceService;
 
@@ -53,4 +53,7 @@ public class ComplianceController {
     ) {
         return complianceService.getControlsByFramework(frameworkId);
     }
+
+ 
+    
 }

@@ -9,6 +9,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
@@ -31,8 +32,15 @@ public class ComplianceControl extends BaseEntity {
     private ComplianceFramework framework;
 
     @ManyToMany
-    Set<Risk> risks;
+@JoinTable(
+    name = "compliance_control_risks",
+    joinColumns = @JoinColumn(name = "compliance_control_id"),
+    inverseJoinColumns = @JoinColumn(name = "risk_id")
+)
+private Set<Risk> risks;
 
-    @ManyToOne
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vendor_id")
     private Vendor vendor;
 }
