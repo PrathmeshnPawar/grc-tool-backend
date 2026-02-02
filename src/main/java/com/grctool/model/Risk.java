@@ -12,8 +12,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Getter;
@@ -24,6 +22,16 @@ import lombok.Setter;
 @Setter
 public class Risk extends BaseEntity {
 
+    @Min(1)
+    @Max(5)
+    private int impact;
+
+    @Min(1)
+    @Max(5)
+    private int likelihood;
+    
+    private int riskScore;
+
     @Column(nullable = false)
     private String title;
 
@@ -33,15 +41,17 @@ public class Risk extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private RiskCategory category;
 
-    @Min(1)
-    @Max(5)
-    private int impact;
+    public int getImpact() {
+        return impact;
+    }
 
-    @Min(1)
-    @Max(5)
-    private int likelihood;
+    public int getLikelihood() {
+        return likelihood;
+    }
 
-    private int riskScore;
+    public int getRiskScore() {
+        return riskScore;
+    }
 
     @Enumerated(EnumType.STRING)
     private RiskStatus status;
@@ -52,13 +62,7 @@ public class Risk extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Incident incident;
 
-@ManyToMany(mappedBy = "risks")
-private Set<ComplianceControl> controls;
+    @ManyToMany(mappedBy = "risks")
+    private Set<ComplianceControl> controls;
 
-
-    @PrePersist
-    @PreUpdate
-    private void calculateRiskScore() {
-        this.riskScore = this.impact * this.likelihood;
-    }
 }

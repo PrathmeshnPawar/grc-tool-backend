@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.grctool.dto.audit.AuditCreateDTO;
 import com.grctool.dto.audit.AuditResponseDTO;
+import com.grctool.dto.audit.AuditResultRequestDTO;
 import com.grctool.dto.audit.AuditUpdateDTO;
 import com.grctool.enums.AuditStatus;
 import com.grctool.interfaces.AuditService;
@@ -44,6 +45,17 @@ public class AuditController {
         return auditService.updateAudit(auditId, dto);
     }
 
+    @GetMapping("/{auditId}")
+    public AuditResponseDTO getAuditById(@PathVariable UUID auditId) {
+        return auditService.getAuditById(auditId);
+    }
+    
+    @GetMapping
+    public List<AuditResponseDTO> getAllAudits() {
+        // Remove @PathVariable and @RequestBody; standard GET lists all resources
+        return auditService.getAllAudits();
+    }
+
     @PatchMapping("/{auditId}/status")
     public void changeStatus(
             @PathVariable UUID auditId,
@@ -55,5 +67,15 @@ public class AuditController {
     @GetMapping("/status/{status}")
     public List<AuditResponseDTO> byStatus(@PathVariable AuditStatus status) {
         return auditService.getAuditsByStatus(status);
+    }
+
+    // -------- SUBMIT AUDIT RESULT --------
+    @PatchMapping("/{auditId}/results")
+    @ResponseStatus(HttpStatus.OK)
+    public void submitResult(
+            @PathVariable UUID auditId,
+            @RequestBody AuditResultRequestDTO dto
+    ) {
+        auditService.submitControlResult(auditId, dto);
     }
 }

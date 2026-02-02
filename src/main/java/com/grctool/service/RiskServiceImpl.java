@@ -17,6 +17,7 @@ import com.grctool.model.User;
 import com.grctool.repository.IncidentRepository;
 import com.grctool.repository.RiskRepository;
 import com.grctool.repository.UserRepository;
+import com.grctool.service.RiskCalculatorService;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class RiskServiceImpl implements RiskService {
     private final RiskRepository riskRepository;
     private final UserRepository userRepository;
     private final IncidentRepository incidentRepository;
+    private final RiskCalculatorService riskCalculator;
 
     // ---------------- CREATE ----------------
 
@@ -42,6 +44,9 @@ public class RiskServiceImpl implements RiskService {
         risk.setImpact(dto.impact());
         risk.setLikelihood(dto.likelihood());
         risk.setStatus(RiskStatus.OPEN);
+
+        // ⭐ calculate risk score
+        riskCalculator.calculateAndSetRiskScore(risk);
 
         if (dto.ownerId() != null) {
             User owner = userRepository.findById(dto.ownerId())
@@ -69,6 +74,9 @@ public class RiskServiceImpl implements RiskService {
         risk.setCategory(dto.category());
         risk.setImpact(dto.impact());
         risk.setLikelihood(dto.likelihood());
+
+        // ⭐ recalculate after update
+        riskCalculator.calculateAndSetRiskScore(risk);
 
         return toResponse(risk);
     }
