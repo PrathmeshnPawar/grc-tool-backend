@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.grctool.dto.ErrorResponse;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -39,6 +41,41 @@ public class GlobalExceptionHandler {
                 .build();
 
         return new ResponseEntity<>(errorRes, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(
+            ConstraintViolationException ex, HttpServletRequest request) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getConstraintViolations().forEach(violation -> {
+            String fieldName = violation.getPropertyPath().toString();
+            errors.put(fieldName, violation.getMessage());
+        });
+
+        ErrorResponse errorRes = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Validation Failed")
+                .message("Invalid request parameters")
+                .path(request.getRequestURI())
+                .validationErrors(errors)
+                .build();
+
+        return new ResponseEntity<>(errorRes, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFound(
+            EntityNotFoundException ex, HttpServletRequest request) {
+        ErrorResponse errorRes = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error("Resource Not Found")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        return new ResponseEntity<>(errorRes, HttpStatus.NOT_FOUND);
     }
 
     // Handle Specific Business Exceptions (e.g., RiskNotFoundException)

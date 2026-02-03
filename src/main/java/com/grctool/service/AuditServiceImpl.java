@@ -192,4 +192,23 @@ public class AuditServiceImpl implements AuditService {
                 null // Matches the 10th parameter (globalEvidenceSummary) in your AuditResponseDTO
         );
     }
+
+    //---------------- COMPLETE AUDIT ----------------
+    @Override
+    public void completeAudit(UUID auditId) {
+        Audit audit = auditRepository.findById(auditId).orElseThrow();
+    
+    // 1. Update tested controls status
+    audit.getTestedControls().forEach(control -> {
+        // Logic to update ComplianceStatus based on evidence
+    });
+    
+    // 2. Check if the linked Risk likelihood needs adjustment
+    if (audit.getRisk() != null) {
+        // Logic to re-calculate riskScore if controls failed
+    }
+    
+    audit.setStatus(AuditStatus.COMPLETED);
+    auditRepository.save(audit);
+}
 }

@@ -10,11 +10,7 @@ import com.grctool.enums.Role;
 import com.grctool.model.User;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
-
     Optional<User> findByEmail(String email);
 
-  //  Optional<User> findByUsername(String username);
-
-    
     List<User> findByRole(Role role);
 }

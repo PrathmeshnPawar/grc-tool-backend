@@ -1,14 +1,20 @@
-    package com.grctool.interfaces;
+package com.grctool.interfaces;
 
-    import java.util.List;
-    import com.grctool.dto.user.UserResponseDTO;
+import java.util.List;
+import java.util.UUID;
 
-    public interface  UserService {
-        List<UserResponseDTO> getAllUsers();
+import com.grctool.dto.user.UserRequestDTO;
+import com.grctool.dto.user.UserResponseDTO;
 
-        UserResponseDTO getUserById(String id);
 
-        UserResponseDTO createUser(UserResponseDTO userResponseDTO);
+public interface UserService {
+    List<UserResponseDTO> getAllUsers();
 
-        void deleteUser(String id);
-    }
+    UserResponseDTO getUserById(String id);
+
+    UserResponseDTO registerUser(UserRequestDTO userRequestDTO);
+
+    void deleteUser(UUID id);
+
+    UserResponseDTO createUserByAdmin(UserRequestDTO userRequestDTO);
+}

@@ -28,4 +28,6 @@ public interface AuditService {
     AuditResponseDTO getAuditById(UUID auditId);
 
     List<AuditResponseDTO> getAllAudits();
+
+    void completeAudit(UUID auditId);
 }

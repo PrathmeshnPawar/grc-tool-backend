@@ -4,6 +4,7 @@ public enum Role {
     ADMIN,
     RISK_OWNER,
     AUDITOR,
-    EMPLOYEE
+    EMPLOYEE,
+    USER
 }
 
