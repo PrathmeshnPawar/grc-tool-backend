@@ -1,52 +1,61 @@
 package com.grctool.controller;
 
 import com.grctool.dto.user.UserRequestDTO;
-import com.grctool.model.User;
-import com.grctool.repository.UserRepository;
+import com.grctool.dto.user.UserResponseDTO;
+import com.grctool.interfaces.UserService;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    @PostMapping
+    // ---------------- ADMIN: CREATE USER WITH ROLE ----------------
+
+    @PostMapping("/admin")
     @ResponseStatus(HttpStatus.CREATED)
-    public User createUser(@RequestBody UserRequestDTO dto) {
-        User user = new User();
-        user.setName(dto.name());
-        user.setEmail(dto.email());
-        user.setPassword(dto.password()); // In production, use BCryptPasswordEncoder
-        user.setRole(dto.role());
-        return userRepository.save(user);
+    public UserResponseDTO createUserByAdmin(
+            @RequestBody UserRequestDTO dto
+    ) {
+        return userService.createUserByAdmin(dto);
     }
 
-    @PostMapping("path")
-    public String postMethodName(@RequestBody String entity) {
-        //TODO: process POST request
-        
-        return entity;
+    // ---------------- ADMIN: REGISTER EMPLOYEE ----------------
+
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponseDTO registerUser(
+            @RequestBody UserRequestDTO dto
+    ) {
+        return userService.registerUser(dto);
     }
-    
+
+    // ---------------- READ ----------------
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponseDTO> getAllUsers() {
+        return userService.getAllUsers();
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable UUID id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public UserResponseDTO getUserById(@PathVariable UUID id) {
+        return userService.getUserById(id);
+    }
+
+    // ---------------- DELETE ----------------
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable UUID id) {
+        userService.deleteUser(id);
     }
 }

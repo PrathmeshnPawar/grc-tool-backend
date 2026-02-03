@@ -78,6 +78,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorRes, HttpStatus.NOT_FOUND);
     }
 
+
     // Handle Specific Business Exceptions (e.g., RiskNotFoundException)
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(

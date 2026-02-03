@@ -10,11 +10,13 @@ import com.grctool.dto.user.UserResponseDTO;
 public interface UserService {
     List<UserResponseDTO> getAllUsers();
 
-    UserResponseDTO getUserById(String id);
+    UserResponseDTO getUserById(UUID id);
 
-    UserResponseDTO registerUser(UserRequestDTO userRequestDTO);
+  //  UserResponseDTO User(UserRequestDTO userRequestDTO);
 
     void deleteUser(UUID id);
 
     UserResponseDTO createUserByAdmin(UserRequestDTO userRequestDTO);
+
+    UserResponseDTO registerUser(UserRequestDTO userRequestDTO);
 }

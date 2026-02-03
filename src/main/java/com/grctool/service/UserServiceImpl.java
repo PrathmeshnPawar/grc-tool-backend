@@ -16,6 +16,7 @@ import com.grctool.model.User;
 import com.grctool.repository.UserRepository;
 import com.grctool.exception.userException.UserAlreadyExistsException;
 
+
 import com.grctool.enums.Role;
 
 import lombok.RequiredArgsConstructor;
@@ -107,8 +108,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserResponseDTO getUserById(String id) {
-        User user = userRepository.findById(UUID.fromString(id))
+    public UserResponseDTO getUserById(UUID id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return toResponseDTO(user);
     }
