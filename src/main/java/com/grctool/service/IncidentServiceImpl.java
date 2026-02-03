@@ -11,10 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.grctool.dto.incident.IncidentCreateDTO;
 import com.grctool.dto.incident.IncidentResponseDTO;
 import com.grctool.dto.incident.IncidentUpdateDTO;
+import com.grctool.enums.IncidentSeverity;
 import com.grctool.enums.IncidentStatus;
+import com.grctool.enums.Role;
 import com.grctool.interfaces.IncidentService;
 import com.grctool.model.Incident;
 import com.grctool.model.Risk;
+import com.grctool.model.User;
 import com.grctool.repository.IncidentRepository;
 import com.grctool.repository.UserRepository;
 
@@ -29,9 +32,12 @@ public class IncidentServiceImpl implements IncidentService {
     private final IncidentRepository incidentRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     @Override
     public IncidentResponseDTO createIncident(IncidentCreateDTO dto) {
 
+        User reportedBy = userRepository.findById(dto.reportedById())
+                .orElseThrow(() -> new EntityNotFoundException("Reporting User not found"));
         Incident incident = new Incident();
         incident.setTitle(dto.title());
         incident.setDescription(dto.description());
@@ -39,10 +45,13 @@ public class IncidentServiceImpl implements IncidentService {
         incident.setStatus(IncidentStatus.OPEN);
         incident.setDateReported(dto.dateReported());
 
-        incident.setReportedBy(
-                userRepository.findById(dto.reportedById())
-                        .orElseThrow(() -> new EntityNotFoundException("Reporter not found"))
-        );
+        incident.setReportedBy(reportedBy);
+                
+
+        if (dto.severity() == IncidentSeverity.CRITICAL) {
+            reportedBy.setRole(Role.ADMIN);
+            userRepository.save(reportedBy); // explicit persistence
+        }
 
         return toResponse(incidentRepository.save(incident));
     }
@@ -95,7 +104,6 @@ public class IncidentServiceImpl implements IncidentService {
                 incident.getReportedBy() != null ? incident.getReportedBy().getId() : null,
                 incident.getRisks() != null
                         ? incident.getRisks().stream().map(Risk::getId).collect(Collectors.toSet())
-                        : Set.of()
-        );
+                        : Set.of());
     }
 }

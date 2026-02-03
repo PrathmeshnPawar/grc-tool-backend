@@ -1,6 +1,7 @@
 package com.grctool.service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -62,6 +63,13 @@ public class PolicyServiceImpl implements PolicyService {
         return toResponse(policyRepository.save(policy));
     }
 
+
+    @Override 
+    public List<PolicyResponseDTO> getAllPolicies() {
+        return policyRepository.findAll().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
     @Override
     public PolicyResponseDTO updatePolicy(UUID policyId, PolicyUpdateDTO dto) {
         Policy policy = getPolicy(policyId);

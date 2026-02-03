@@ -1,5 +1,6 @@
 package com.grctool.interfaces;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.grctool.dto.policy.PolicyCreateDTO;
@@ -14,4 +15,6 @@ public interface PolicyService {
     PolicyResponseDTO updatePolicy(UUID policyId, PolicyUpdateDTO dto);
 
     void changeStatus(UUID policyId, PolicyStatus status);
+
+    List<PolicyResponseDTO> getAllPolicies();
 }
