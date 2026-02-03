@@ -8,5 +8,10 @@ public record AuditResultRequestDTO(
     UUID controlId,
     AuditResultStatus status,
     String findings,
-    String evidenceUrl // NEW: Link to the uploaded document or proof
+
+    // Evidence reference (client-provided)
+    String evidencePath,
+
+    // Optional but useful (client-provided)
+    String evidenceType
 ) {}

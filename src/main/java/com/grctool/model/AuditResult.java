@@ -1,5 +1,7 @@
 package com.grctool.model;
 
+import java.time.Instant;
+
 import com.grctool.enums.AuditResultStatus; // PASS, FAIL, INCONCLUSIVE
 
 import jakarta.persistence.Column;
@@ -20,20 +22,30 @@ import lombok.Setter;
 public class AuditResult extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "audit_id", nullable = false) // Mark as non-nullable
+    @JoinColumn(name = "audit_id", nullable = false)
     private Audit audit;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "control_id", nullable = false) // Mark as non-nullable
+    @JoinColumn(name = "control_id", nullable = false)
     private ComplianceControl control;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false) // ADD THIS: Explicitly mark as NOT NULL
+    @Column(nullable = false)
     private AuditResultStatus status;
 
     @Column(columnDefinition = "TEXT")
     private String findings;
 
-    @Column(nullable=false)
-    private String evidenceUrl;
+    // ✅ NEW – matches migration
+    @Column(name = "evidence_path", nullable = false)
+    private String evidencePath;
+
+    @Column(name = "evidence_type", length = 50)
+    private String evidenceType;
+
+    @Column(name = "evidence_checksum", length = 64)
+    private String evidenceChecksum;
+
+    @Column(name = "evidence_uploaded_at", nullable = false)
+    private Instant evidenceUploadedAt;
 }

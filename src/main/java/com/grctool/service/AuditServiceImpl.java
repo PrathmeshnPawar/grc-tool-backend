@@ -162,7 +162,7 @@ public class AuditServiceImpl implements AuditService {
 
         result.setStatus(dto.status());
         result.setFindings(dto.findings());
-        result.setEvidenceUrl(dto.evidenceUrl()); // Now correctly persisting the evidence link
+        result.setEvidencePath(dto.evidencePath()); // Now correctly persisting the evidence link
 
         auditResultRepository.save(result);
     }
