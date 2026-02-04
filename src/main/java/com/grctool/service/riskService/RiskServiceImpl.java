@@ -1,4 +1,4 @@
-package com.grctool.service;
+package com.grctool.service.riskService;
 
 import java.util.List;
 import java.util.UUID;

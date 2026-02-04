@@ -16,14 +16,12 @@ import com.grctool.model.User;
 import com.grctool.repository.UserRepository;
 import com.grctool.exception.userException.UserAlreadyExistsException;
 
-
 import com.grctool.enums.Role;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class UserServiceImpl implements UserService {
 
     // Inject the Repository, not the Service itself!
@@ -37,7 +35,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<UserResponseDTO> getAllUsers() {
         return userRepository.findAll()
                 .stream()
@@ -63,16 +60,7 @@ public class UserServiceImpl implements UserService {
         // user.setPassword(passwordEncoder.encode(userRequestDTO.password()));
         user.setPassword(passwordEncoder.encode(userRequestDTO.password())); // Temporary until you add Security
 
-        Role requestedRole = userRequestDTO.role();
-        if (requestedRole == Role.AUDITOR ||
-                requestedRole == Role.RISK_OWNER ||
-                requestedRole == Role.USER) {
-
-            user.setRole(requestedRole);
-
-        } else {
-            throw new IllegalArgumentException("Invalid role assignment by admin");
-        }
+        user.setRole(userRequestDTO.role());
 
         // 4. Save and return the Response DTO
         User savedUser = userRepository.save(user);
@@ -107,7 +95,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public UserResponseDTO getUserById(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));

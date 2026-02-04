@@ -1,13 +1,13 @@
-package com.grctool.service;
-
-import com.grctool.model.Risk;
-import com.grctool.model.User;
+package com.grctool.service.riskService;
 
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.grctool.model.Risk;
+import com.grctool.model.User;
 import com.grctool.repository.RiskRepository;
+import com.grctool.service.auditService.AuditLogService;
 
 @Service
 public class RiskCalculatorService {

@@ -1,7 +1,7 @@
 package com.grctool.enums;
 
 public enum PolicyStatus {
-DRAFT,
+    DRAFT,
     UNDER_REVIEW,
     PUBLISHED,
     ARCHIVED

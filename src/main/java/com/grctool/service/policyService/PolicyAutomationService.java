@@ -1,4 +1,4 @@
-package com.grctool.service;
+package com.grctool.service.policyService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,10 +25,10 @@ public class PolicyAutomationService {
      * Automated Task: Runs every day at midnight.
      * Identifies policies in DRAFT or UNDER_REVIEW that haven't been updated in 30 days.
      */
-    @Scheduled(fixedRate=10000)// For demonstration, runs every 10 seconds. Change to cron expression for production.
-    @Transactional
+    @Scheduled(cron= "0 0 0 L * ?")// For demonstration, runs every 10 seconds. Change to cron expression for production.
+  //  @Transactional
     public void processOverduePolicyReviews() {
-        LocalDateTime cutoffDate = LocalDateTime.now().minusDays(0);
+        LocalDateTime cutoffDate = LocalDateTime.now().minusDays(30);
         
         // Fetch policies based on existing status and timestamp
         List<Policy> stagnantPolicies = policyRepository.findAll().stream()
@@ -61,5 +61,17 @@ public class PolicyAutomationService {
         log.info("Policy {} has reached end-of-life. Transitioning to ARCHIVED.", policy.getId());
         policy.setStatus(PolicyStatus.ARCHIVED); // Uses your PolicyStatus enum
         policyRepository.save(policy);
+    }
+
+     public void processReminders(LocalDateTime cutoffDate) {
+        // Local variable: Created on the stack, cleared as soon as method ends.
+        // No memory leak risk!
+        List<PolicyStatus> targetStatuses = List.of(PolicyStatus.DRAFT, PolicyStatus.UNDER_REVIEW);
+        
+        List<Policy> stagnantPolicies = policyRepository.findStagnantPolicies(targetStatuses, cutoffDate);
+
+        for (Policy policy : stagnantPolicies) {
+            triggerAttestationReminder(policy);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.grctool.model;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import com.grctool.enums.PolicyStatus;
@@ -24,7 +25,6 @@ public class Policy extends BaseEntity {
     private String version;
 
     @Column(length = 3000)
-    
     private String description;
 
     @Enumerated(EnumType.STRING)
@@ -40,12 +40,10 @@ public class Policy extends BaseEntity {
     private ComplianceFramework framework;
 
     @ManyToMany
-@JoinTable(
-    name = "policy_controls",
-    joinColumns = @JoinColumn(name = "policy_id"),
-    inverseJoinColumns = @JoinColumn(name = "control_id")
-)
-Set<ComplianceControl> controls;
+    @JoinTable(name = "policy_controls", joinColumns = @JoinColumn(name = "policy_id"), inverseJoinColumns = @JoinColumn(name = "control_id"))
+    Set<ComplianceControl> controls;
 
+    @Column(name = "last_updated")
+    private LocalDateTime lastUpdated;
 
 }

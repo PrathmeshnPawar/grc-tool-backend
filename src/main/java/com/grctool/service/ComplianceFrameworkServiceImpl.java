@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.grctool.dto.compliance.ComplianceFrameworkCreateDTO;
 import com.grctool.dto.compliance.ComplianceFrameworkResponseDTO;
@@ -17,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ComplianceFrameworkServiceImpl implements ComplianceFrameworkService {
 
     private final ComplianceFrameworkRepository frameworkRepository;
@@ -45,7 +43,6 @@ public class ComplianceFrameworkServiceImpl implements ComplianceFrameworkServic
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<ComplianceFrameworkResponseDTO> getAllFrameworks() {
         return frameworkRepository.findAll().stream()
                 .map(this::toResponse)
@@ -53,7 +50,6 @@ public class ComplianceFrameworkServiceImpl implements ComplianceFrameworkServic
     }
 
     @Override
-    @Transactional(readOnly = true)
     public ComplianceFrameworkResponseDTO getFrameworkById(UUID id) {
         return frameworkRepository.findById(id)
                 .map(this::toResponse)

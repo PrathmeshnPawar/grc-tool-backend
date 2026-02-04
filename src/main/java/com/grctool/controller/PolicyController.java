@@ -21,7 +21,7 @@ import com.grctool.dto.policy.PolicyResponseDTO;
 import com.grctool.dto.policy.PolicyUpdateDTO;
 import com.grctool.enums.PolicyStatus;
 import com.grctool.interfaces.PolicyService;
-import com.grctool.service.PolicyAutomationService;
+import com.grctool.service.policyService.PolicyAutomationService;
 
 import lombok.RequiredArgsConstructor;
 

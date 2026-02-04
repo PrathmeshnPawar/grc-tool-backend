@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class VendorServiceImpl implements VendorService {
 
     private final VendorRepository vendorRepository;

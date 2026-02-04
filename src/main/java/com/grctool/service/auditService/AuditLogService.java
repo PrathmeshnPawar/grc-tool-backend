@@ -1,10 +1,11 @@
-package com.grctool.service;
+package com.grctool.service.auditService;
+
+import org.springframework.stereotype.Service;
 
 import com.grctool.model.AuditLog;
 import com.grctool.model.BaseEntity;
 import com.grctool.model.User;
 import com.grctool.repository.AuditLogRepository;
-import org.springframework.stereotype.Service;
 
 @Service
 public class AuditLogService {

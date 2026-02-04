@@ -20,13 +20,13 @@ import com.grctool.model.Risk;
 import com.grctool.model.User;
 import com.grctool.repository.IncidentRepository;
 import com.grctool.repository.UserRepository;
+import com.grctool.exception.userException.AccessDeniedException;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class IncidentServiceImpl implements IncidentService {
 
     private final IncidentRepository incidentRepository;
@@ -46,7 +46,6 @@ public class IncidentServiceImpl implements IncidentService {
         incident.setDateReported(dto.dateReported());
 
         incident.setReportedBy(reportedBy);
-                
 
         if (dto.severity() == IncidentSeverity.CRITICAL) {
             reportedBy.setRole(Role.ADMIN);
@@ -74,7 +73,11 @@ public class IncidentServiceImpl implements IncidentService {
     @Override
     public IncidentResponseDTO updateIncident(UUID incidentId, IncidentUpdateDTO dto) {
         Incident incident = getIncident(incidentId);
-
+        User currentUser = dto.reportedBy();
+        if (!incident.getReportedBy().getId().equals(currentUser.getId()) &&
+                currentUser.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException("Not authorized");
+        }
         incident.setTitle(dto.title());
         incident.setDescription(dto.description());
         incident.setSeverity(dto.severity());
