@@ -11,12 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.grctool.dto.user.UserRequestDTO; // Use only your model
 import com.grctool.dto.user.UserResponseDTO; // Inject this!
+import com.grctool.enums.Role;
+import com.grctool.exception.userException.UserAlreadyExistsException;
 import com.grctool.interfaces.UserService;
 import com.grctool.model.User;
 import com.grctool.repository.UserRepository;
-import com.grctool.exception.userException.UserAlreadyExistsException;
-
-import com.grctool.enums.Role;
 
 import lombok.RequiredArgsConstructor;
 
@@ -44,7 +43,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('CREATE_USER')")
     public UserResponseDTO createUserByAdmin(UserRequestDTO userRequestDTO) {
         // 1. Check if user already exists
         if (userRepository.findByEmail(userRequestDTO.email()).isPresent()) {
