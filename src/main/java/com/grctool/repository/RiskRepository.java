@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import com.grctool.enums.RiskCategory;
 import com.grctool.enums.RiskStatus;
 import com.grctool.model.Risk;
 
+@Repository
 public interface RiskRepository extends JpaRepository<Risk, UUID> {
 
     List<Risk> findByCategory(RiskCategory category);

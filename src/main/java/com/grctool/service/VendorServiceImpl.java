@@ -12,6 +12,7 @@ import com.grctool.enums.VendorStatus;
 import com.grctool.interfaces.VendorService;
 import com.grctool.model.Vendor;
 import com.grctool.repository.VendorRepository;
+import com.grctool.mapper.VendorMapper;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -21,40 +22,35 @@ import lombok.RequiredArgsConstructor;
 public class VendorServiceImpl implements VendorService {
 
     private final VendorRepository vendorRepository;
+    private final VendorMapper vendorMapper;
 
     @Override
+    @Transactional
     public VendorResponseDTO createVendor(VendorCreateDTO dto) {
-        Vendor vendor = new Vendor();
-        vendor.setName(dto.name());
-        vendor.setContactEmail(dto.contactEmail());
-        vendor.setStatus(dto.status());
-        vendor.setTier(dto.tier());
-        
-        return toResponse(vendorRepository.save(vendor));
+        Vendor vendor = vendorRepository.save(vendorMapper.toEntity(dto));
+        return vendorMapper.toResponse(vendor);
     }
 
     @Override
     @Transactional(readOnly = true)
     public VendorResponseDTO getVendorById(UUID id) {
-        return vendorRepository.findById(id)
-                .map(this::toResponse)
-                .orElseThrow(() -> new EntityNotFoundException("Vendor not found"));
+       Vendor vendor = vendorRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Vendor not found")); 
+        return vendorMapper.toResponse(vendor);
+                
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<VendorResponseDTO> getAllVendors() {
-        return vendorRepository.findAll().stream()
-                .map(this::toResponse)
-                .toList();
+        List<Vendor> vendors = vendorRepository.findAll();
+        return vendorMapper.toResponseList(vendors);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<VendorResponseDTO> getVendorsByStatus(VendorStatus status) {
-        return vendorRepository.findByStatus(status).stream()
-                .map(this::toResponse)
-                .toList();
+        List<Vendor> vendor = vendorRepository.findByStatus(status);
+        return vendorMapper.toResponseList(vendor);
     }
 
     @Override
@@ -65,13 +61,4 @@ public class VendorServiceImpl implements VendorService {
         vendorRepository.deleteById(id);
     }
 
-    private VendorResponseDTO toResponse(Vendor v) {
-        return new VendorResponseDTO(
-                v.getId(),
-                v.getName(),
-                v.getContactEmail(),
-                v.getStatus(),
-                v.getTier()
-        );
-    }
 }

@@ -4,10 +4,13 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import com.grctool.enums.AuditStatus;
 import com.grctool.model.Audit;
 
+
+@Repository
 public interface AuditRepository extends JpaRepository<Audit, UUID> {
 
     List<Audit> findByStatus(AuditStatus status);
