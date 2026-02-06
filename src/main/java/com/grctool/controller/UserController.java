@@ -2,7 +2,6 @@ package com.grctool.controller;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +20,7 @@ import com.grctool.dto.user.UserResponseDTO;
 import com.grctool.enums.Permission_Name;
 import com.grctool.interfaces.PermissionService;
 import com.grctool.interfaces.UserService;
-import com.grctool.model.Permissions;
+import com.grctool.mapper.UserMapper;
 import com.grctool.model.User;
 
 import lombok.RequiredArgsConstructor;
@@ -31,34 +30,26 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final PermissionService permissionService;
     private final UserService userService;
+    private final PermissionService permissionService;
+    private final UserMapper userMapper; // 1. Inject the Mapper
 
-    // ---------------- ADMIN: CREATE USER WITH ROLE ----------------
+    // ---------------- ADMIN: CREATE USER ----------------
 
     @PostMapping("/admin")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDTO createUserByAdmin(
-            @RequestBody UserRequestDTO dto
-    ) {
-        return userService.createUserByAdmin(dto);
-    }
-
-    // ---------------- ADMIN: REGISTER EMPLOYEE ----------------
-
-    @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDTO registerUser(
-            @RequestBody UserRequestDTO dto
-    ) {
-        return userService.registerUser(dto);
+    public UserResponseDTO createUserByAdmin(@RequestBody UserRequestDTO dto) {
+        // The service should ideally return a DTO, but if it returns an Entity:
+        return userService.createUserByAdmin(dto); 
     }
 
     // ---------------- READ ----------------
 
     @GetMapping
     public List<UserResponseDTO> getAllUsers() {
-        return userService.getAllUsers();
+        // If userService.getAllUsers() returns List<User>, use the mapper:
+        // return userMapper.toResponseDTOList(userService.getAllUsers());
+        return userService.getAllUsers(); 
     }
 
     @GetMapping("/{id}")
@@ -66,36 +57,17 @@ public class UserController {
         return userService.getUserById(id);
     }
 
-    // ---------------- DELETE ----------------
+    // ---------------- PERMISSIONS ----------------
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUser(@PathVariable UUID id) {
-        userService.deleteUser(id);
-    }
-
-   @DeleteMapping("/{userId}/permissions/revoke")
+    @DeleteMapping("/{userId}/permissions/revoke")
     public ResponseEntity<UserResponseDTO> revokePermission(
             @PathVariable UUID userId, 
             @RequestParam Permission_Name permissionName) {
         
-        // 1. Service Layer handles the business logic/transaction
+        // 1. Service Layer handles logic and returns the updated Entity
         User updatedUser = permissionService.revokePermissionFromUser(userId, permissionName);
         
-        // 2. Map to DTO using our helper
-        return ResponseEntity.ok(mapToResponseDTO(updatedUser));
-    }
-
-    // WIZARD TIP: Centralized mapping logic
-    private UserResponseDTO mapToResponseDTO(User user) {
-        return new UserResponseDTO(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getRole().name(),
-                user.getPermissions().stream()
-                        .map(Permissions::getName)
-                        .collect(Collectors.toSet())
-        );
+        // 2. Use the INJECTED mapper, not a local helper
+        return ResponseEntity.ok(userMapper.toResponseDTO(updatedUser));
     }
 }

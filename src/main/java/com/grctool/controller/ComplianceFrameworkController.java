@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.grctool.dto.compliance.ComplianceFrameworkCreateDTO;
+import com.grctool.dto.compliance.ComplianceFrameworkUpdateDTO;
 import com.grctool.dto.compliance.ComplianceFrameworkResponseDTO;
 import com.grctool.interfaces.ComplianceFrameworkService;
 
@@ -47,7 +48,7 @@ public class ComplianceFrameworkController {
 @PutMapping("/{id}")
 public ComplianceFrameworkResponseDTO update(
         @PathVariable UUID id, 
-        @RequestBody ComplianceFrameworkCreateDTO dto // Reusing CreateDTO for simplicity or create a specific UpdateDTO
+        @RequestBody ComplianceFrameworkUpdateDTO dto // Reusing CreateDTO for simplicity or create a specific UpdateDTO
 ) {
     return frameworkService.updateFramework(id, dto);
 }

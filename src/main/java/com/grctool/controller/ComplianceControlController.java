@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.grctool.dto.compliance.ComplianceControlCreateDTO;
 import com.grctool.dto.compliance.ComplianceControlResponseDTO;
 import com.grctool.enums.ComplianceStatus;
-import com.grctool.interfaces.ComplianceService;
+import com.grctool.interfaces.ComplianceControlService;
+
+
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ComplianceControlController {
 
-    private final ComplianceService complianceService;
+    private final ComplianceControlService complianceService;
 
     // -------- CREATE CONTROL --------
     @PostMapping("/controls")

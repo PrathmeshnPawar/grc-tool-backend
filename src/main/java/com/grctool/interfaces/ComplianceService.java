@@ -1,17 +1,20 @@
 package com.grctool.interfaces;
 
+import com.grctool.dto.compliance.ComplianceFrameworkCreateDTO;
+import com.grctool.dto.compliance.ComplianceFrameworkResponseDTO;
+import com.grctool.dto.compliance.ComplianceFrameworkUpdateDTO;
 import java.util.List;
 import java.util.UUID;
 
-import com.grctool.dto.compliance.ComplianceControlCreateDTO;
-import com.grctool.dto.compliance.ComplianceControlResponseDTO;
-import com.grctool.enums.ComplianceStatus;
-
 public interface ComplianceService {
 
-    ComplianceControlResponseDTO createControl(ComplianceControlCreateDTO dto);
+    ComplianceFrameworkResponseDTO createFramework(ComplianceFrameworkCreateDTO dto);
 
-    void changeControlStatus(UUID controlId, ComplianceStatus status);
+    ComplianceFrameworkResponseDTO updateFramework(UUID id, ComplianceFrameworkUpdateDTO dto);
 
-    List<ComplianceControlResponseDTO> getControlsByFramework(UUID frameworkId);
+    List<ComplianceFrameworkResponseDTO> getAllFrameworks();
+
+    
+
+    
 }

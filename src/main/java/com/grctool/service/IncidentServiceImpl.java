@@ -1,5 +1,6 @@
 package com.grctool.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,25 +58,28 @@ public class IncidentServiceImpl implements IncidentService {
     }
 
     @Override
-    @Transactional // WIZARD TIP: Mandatory for updates to persist
-    public IncidentResponseDTO updateIncident(UUID incidentId, IncidentUpdateDTO dto) {
-        Incident incident = getIncident(incidentId);
-        
-        // Authorization check
-        User currentUser = dto.reportedBy(); 
-        if (!incident.getReportedBy().getId().equals(currentUser.getId()) &&
-                currentUser.getRole() != Role.ADMIN) {
-            throw new AccessDeniedException("Not authorized");
-        }
-
-        incident.setTitle(dto.title());
-        incident.setDescription(dto.description());
-        incident.setSeverity(dto.severity());
-        incident.setDateReported(dto.dateReported());
-
-        // Hibernate auto-saves here because of @Transactional
-        return incidentMapper.toResponse(incident);
+@Transactional 
+public IncidentResponseDTO updateIncident(UUID incidentId, IncidentUpdateDTO dto) {
+    Incident incident = getIncident(incidentId);
+    
+    // 1. Identify the actor (The one sending the request)
+    User actor = dto.reportedBy(); // In the future, this comes from SecurityContext
+    
+    // 2. Authorization Check
+    if (!incident.getReportedBy().getId().equals(actor.getId()) &&
+            actor.getRole() != Role.ADMIN) {
+        throw new AccessDeniedException("Not authorized to edit this incident");
     }
+
+    // 3. Map the data changes
+    incidentMapper.updateEntityFromDto(dto, incident);
+
+    // 4. Capture the "Who" and "When"
+    incident.setUpdatedBy(actor);
+    incident.setUpdatedAt(LocalDateTime.now());
+
+    return incidentMapper.toResponse(incident);
+}
 
     @Override
     @Transactional
