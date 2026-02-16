@@ -1,6 +1,6 @@
 package com.grctool.model;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 
 import com.grctool.enums.Role;
 
@@ -24,6 +24,7 @@ public class User extends BaseEntity {
     private String name;
     private String email;
     private String password;
+    private String picture;
 
     @Enumerated(EnumType.STRING)
     private Role role;

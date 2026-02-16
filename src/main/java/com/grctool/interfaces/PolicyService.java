@@ -17,4 +17,8 @@ public interface PolicyService {
     void changeStatus(UUID policyId, PolicyStatus status);
 
     List<PolicyResponseDTO> getAllPolicies();
+
+    PolicyResponseDTO getPolicyById(UUID id);
+
+
 }

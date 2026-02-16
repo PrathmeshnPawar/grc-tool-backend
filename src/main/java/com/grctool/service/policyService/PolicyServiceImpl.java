@@ -2,9 +2,7 @@ package com.grctool.service.policyService;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +12,7 @@ import com.grctool.dto.policy.PolicyResponseDTO;
 import com.grctool.dto.policy.PolicyUpdateDTO;
 import com.grctool.enums.PolicyStatus;
 import com.grctool.interfaces.PolicyService;
-import com.grctool.model.ComplianceControl;
+import com.grctool.mapper.PolicyMapper;
 import com.grctool.model.Policy;
 import com.grctool.repository.ComplianceControlRepository;
 import com.grctool.repository.ComplianceFrameworkRepository;
@@ -33,6 +31,7 @@ public class PolicyServiceImpl implements PolicyService {
     private final UserRepository userRepository;
     private final ComplianceFrameworkRepository frameworkRepository;
     private final ComplianceControlRepository controlRepository;
+    private final PolicyMapper policyMapper;
 
     @Override
     public PolicyResponseDTO createPolicy(PolicyCreateDTO dto) {
@@ -46,30 +45,36 @@ public class PolicyServiceImpl implements PolicyService {
 
         policy.setOwner(
                 userRepository.findById(dto.ownerId())
-                        .orElseThrow(() -> new EntityNotFoundException("Owner not found"))
-        );
+                        .orElseThrow(() -> new EntityNotFoundException("Owner not found")));
 
         policy.setFramework(
                 frameworkRepository.findById(dto.frameworkId())
-                        .orElseThrow(() -> new EntityNotFoundException("Framework not found"))
-        );
+                        .orElseThrow(() -> new EntityNotFoundException("Framework not found")));
 
         if (dto.controlIds() != null) {
             policy.setControls(
-                    new HashSet<>(controlRepository.findAllById(dto.controlIds()))
-            );
+                    new HashSet<>(controlRepository.findAllById(dto.controlIds())));
         }
 
-        return toResponse(policyRepository.save(policy));
+        Policy saved = policyRepository.save(policy);
+
+        return policyMapper.toResponse(saved);
     }
 
-
-    @Override 
+    @Override
     public List<PolicyResponseDTO> getAllPolicies() {
-        return policyRepository.findAll().stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+        List<Policy> policies = policyRepository.findAll();
+        return policyMapper.toResponseList(policies);
+
     }
+
+    @Override
+    public PolicyResponseDTO getPolicyById(UUID id) {
+        Policy policy = policyRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Policy with id " +id +" not found"));
+        return policyMapper.toResponse(policy);
+    }
+
     @Override
     public PolicyResponseDTO updatePolicy(UUID policyId, PolicyUpdateDTO dto) {
         Policy policy = getPolicy(policyId);
@@ -82,17 +87,15 @@ public class PolicyServiceImpl implements PolicyService {
         if (dto.frameworkId() != null) {
             policy.setFramework(
                     frameworkRepository.findById(dto.frameworkId())
-                            .orElseThrow(() -> new EntityNotFoundException("Framework not found"))
-            );
+                            .orElseThrow(() -> new EntityNotFoundException("Framework not found")));
         }
 
         if (dto.controlIds() != null) {
             policy.setControls(
-                    new HashSet<>(controlRepository.findAllById(dto.controlIds()))
-            );
+                    new HashSet<>(controlRepository.findAllById(dto.controlIds())));
         }
 
-        return toResponse(policy);
+        return policyMapper.toResponse(policy);
     }
 
     @Override
@@ -105,19 +108,4 @@ public class PolicyServiceImpl implements PolicyService {
                 .orElseThrow(() -> new EntityNotFoundException("Policy not found"));
     }
 
-    private PolicyResponseDTO toResponse(Policy policy) {
-        return new PolicyResponseDTO(
-                policy.getId(),
-                policy.getTitle(),
-                policy.getVersion(),
-                policy.getDescription(),
-                policy.getContent(),
-                policy.getStatus(),
-                policy.getOwner() != null ? policy.getOwner().getId() : null,
-                policy.getFramework() != null ? policy.getFramework().getId() : null,
-                policy.getControls() != null
-                        ? policy.getControls().stream().map(ComplianceControl::getId).collect(Collectors.toSet())
-                        : Set.of()
-        );
-    }
 }

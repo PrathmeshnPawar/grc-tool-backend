@@ -42,10 +42,11 @@ public class PolicyController {
     ) {
         return policyService.createPolicy(dto);
     }
-
-    @GetMapping("path")
-    public String getMethodName(@RequestParam String param) {
-        return new String();
+    
+    //--------- GET POLICY BY ID ------
+    @GetMapping("/{id}")
+    public PolicyResponseDTO getMethodName(@PathVariable UUID id) {
+        return policyService.getPolicyById(id);
     }
 
     //---------- GET ALL POLICIES --------

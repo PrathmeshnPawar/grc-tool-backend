@@ -22,9 +22,10 @@ public class UserMapper {
     private final PermissionsRepository permissionRepository;
 
     private final PasswordEncoder passwordEncoder;
-   
-        public UserResponseDTO toResponseDTO(User user) {
-        if (user == null) return null;
+
+    public UserResponseDTO toResponseDTO(User user) {
+        if (user == null)
+            return null;
         Set<Permission_Name> permissionArray = (user.getPermissions() == null)
                 ? java.util.Collections.emptySet()
                 : user.getPermissions().stream()
@@ -35,20 +36,24 @@ public class UserMapper {
                 user.getName(),
                 user.getEmail(),
                 user.getRole().name(),
-                permissionArray);
+                permissionArray,
+                user.getPicture());
+
     }
 
     public java.util.List<UserResponseDTO> toResponseDTOList(java.util.List<User> users) {
-        if (users == null) return java.util.Collections.emptyList();
+        if (users == null)
+            return java.util.Collections.emptyList();
         return users.stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
     public User toEntity(UserRequestDTO dto) {
-        if (dto == null) return null;
+        if (dto == null)
+            return null;
 
-       User user = new User();
+        User user = new User();
         user.setName(dto.name());
         user.setEmail(dto.email());
 
@@ -58,7 +63,7 @@ public class UserMapper {
         user.setRole(dto.role());
 
         permissionRepository.findByName(Permission_Name.USER_READ).ifPresent(perm -> user.getPermissions().add(perm));
-
-       return user;
+    
+        return user;
     }
 }
