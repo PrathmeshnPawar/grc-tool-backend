@@ -18,19 +18,40 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // This tells Spring Security to use the CorsFilter bean we just created
-                .cors(Customizer.withDefaults())
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        // Ensure preflights are ALWAYS permitted
-                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/users/v1/auth/me", "/login/**", "/oauth2/**").permitAll()
-                        .anyRequest().authenticated())
-                .exceptionHandling(exceptions -> exceptions
-                        // Return 401 instead of a 302 redirect for API calls
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .oauth2Login(oauth -> oauth
-                        .defaultSuccessUrl("http://localhost:3000/dashboard", true));
+            .cors(Customizer.withDefaults())
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth ->
+                auth
+                    .requestMatchers(
+                        org.springframework.http.HttpMethod.OPTIONS,
+                        "/**"
+                    )
+                    .permitAll()
+                    .requestMatchers(
+                        "/api/users/v1/auth/me",
+                        "/login/**",
+                        "/oauth2/**"
+                    )
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated()
+            )
+            .exceptionHandling(exceptions ->
+                exceptions.authenticationEntryPoint(
+                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
+                )
+            )
+            .oauth2Login(oauth ->
+                oauth.defaultSuccessUrl("http://localhost:3000/dashboard", true)
+            ) // REMOVED SEMICOLON HERE
+            .logout(logout ->
+                logout
+                    .logoutUrl("/api/logout") // The endpoint the frontend will trigger
+                    .logoutSuccessUrl("http://localhost:3000/") // Redirect to landing after success
+                    .invalidateHttpSession(true)
+                    .clearAuthentication(true)
+                    .deleteCookies("JSESSIONID")
+            );
 
         return http.build();
     }

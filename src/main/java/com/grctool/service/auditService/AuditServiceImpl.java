@@ -1,19 +1,16 @@
 package com.grctool.service.auditService;
 
-import java.util.*;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.grctool.dto.audit.*;
 import com.grctool.enums.*;
 import com.grctool.interfaces.AuditService;
+import com.grctool.mapper.AuditMapper;
 import com.grctool.model.*;
 import com.grctool.repository.*;
-import com.grctool.mapper.AuditMapper;
-
 import jakarta.persistence.EntityNotFoundException;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,34 +28,66 @@ public class AuditServiceImpl implements AuditService {
     // ---------------- CREATE ----------------
 
     @Override
-    @Transactional // Override read-only for writes
+    @Transactional
     public AuditResponseDTO createAudit(AuditCreateDTO dto) {
-        // 1. Fetch dependencies (The Service's job to provide these to the Mapper)
-        User auditor = userRepository.findById(dto.leadAuditorId())
-                .orElseThrow(() -> new EntityNotFoundException("Auditor not found"));
+        // 1. Fetch dependencies SAFELY
+        // Only fetch auditor if the ID is provided
+        User auditor = null;
+        if (dto.leadAuditorId() != null) {
+            auditor = userRepository
+                .findById(dto.leadAuditorId())
+                .orElseThrow(() ->
+                    new EntityNotFoundException("Auditor not found")
+                );
+        }
 
-        Risk risk = riskRepository.findById(dto.riskId())
-                .orElseThrow(() -> new EntityNotFoundException("Risk not found"));
+        // Only fetch risk if the ID is provided
+        Risk risk = null;
+        if (dto.riskId() != null) {
+            risk = riskRepository
+                .findById(dto.riskId())
+                .orElseThrow(() ->
+                    new EntityNotFoundException("Risk not found")
+                );
+        }
 
-        Set<ComplianceControl> controls = new HashSet<>(controlRepository.findAllById(dto.testedControlIds()));
-        Set<Policy> policies = new HashSet<>(policyRepository.findAllById(dto.reviewedPolicyIds()));
+        // Handle collections (Standard findByAllId handles empty sets gracefully)
+        Set<ComplianceControl> controls = (dto.testedControlIds() != null)
+            ? new HashSet<>(
+                  controlRepository.findAllById(dto.testedControlIds())
+              )
+            : new HashSet<>();
+
+        Set<Policy> policies = (dto.reviewedPolicyIds() != null)
+            ? new HashSet<>(
+                  policyRepository.findAllById(dto.reviewedPolicyIds())
+              )
+            : new HashSet<>();
 
         // 2. Map to Transient Entity
-        Audit audit = auditMapper.toEntity(dto, auditor, risk, controls, policies);
+        Audit audit = auditMapper.toEntity(
+            dto,
+            auditor,
+            risk,
+            controls,
+            policies
+        );
 
-        // 3. Persist Audit (Generates the ID)
+        // 3. Persist Audit
         Audit savedAudit = auditRepository.save(audit);
 
         // 4. Lifecycle Orchestration: Generate AuditResult placeholders
         if (!controls.isEmpty()) {
-            List<AuditResult> initialResults = controls.stream()
-                    .map(control -> {
-                        AuditResult result = new AuditResult();
-                        result.setAudit(savedAudit);
-                        result.setControl(control);
-                        result.setStatus(AuditResultStatus.INCONCLUSIVE);
-                        return result;
-                    }).toList();
+            List<AuditResult> initialResults = controls
+                .stream()
+                .map(control -> {
+                    AuditResult result = new AuditResult();
+                    result.setAudit(savedAudit);
+                    result.setControl(control);
+                    result.setStatus(AuditResultStatus.INCONCLUSIVE);
+                    return result;
+                })
+                .toList();
             auditResultRepository.saveAll(initialResults);
         }
 
@@ -113,17 +142,23 @@ public class AuditServiceImpl implements AuditService {
         Audit audit = getAudit(auditId);
 
         // 1. Validation Logic
-        List<AuditResult> results = auditResultRepository.findByAuditId(auditId);
-        boolean allFinished = results.stream()
-                .noneMatch(r -> r.getStatus() == AuditResultStatus.INCONCLUSIVE);
+        List<AuditResult> results = auditResultRepository.findByAuditId(
+            auditId
+        );
+        boolean allFinished = results
+            .stream()
+            .noneMatch(r -> r.getStatus() == AuditResultStatus.INCONCLUSIVE);
 
         if (!allFinished) {
-            throw new IllegalStateException("Cannot complete audit while results are inconclusive");
+            throw new IllegalStateException(
+                "Cannot complete audit while results are inconclusive"
+            );
         }
 
         // 2. The Verdict
-        boolean failuresFound = results.stream()
-                .anyMatch(r -> r.getStatus() == AuditResultStatus.FAIL);
+        boolean failuresFound = results
+            .stream()
+            .anyMatch(r -> r.getStatus() == AuditResultStatus.FAIL);
 
         // 3. The Ripple Effect (Using failuresFound)
         if (failuresFound) {
@@ -131,7 +166,9 @@ public class AuditServiceImpl implements AuditService {
             if (audit.getRisk() != null) {
                 // Logic: If controls fail, the risk is more likely to happen
                 int currentLikelihood = audit.getRisk().getLikelihood();
-                audit.getRisk().setLikelihood(Math.min(currentLikelihood + 1, 5)); // Max cap at 5
+                audit
+                    .getRisk()
+                    .setLikelihood(Math.min(currentLikelihood + 1, 5)); // Max cap at 5
             }
 
             // Option B: Mark the Audit as FAILED/COMPLETED_WITH_ISSUES
@@ -156,8 +193,11 @@ public class AuditServiceImpl implements AuditService {
     @Transactional
     public void assignLeadAuditor(UUID auditId, UUID auditorId) {
         Audit audit = getAudit(auditId);
-        User auditor = userRepository.findById(auditorId)
-                .orElseThrow(() -> new EntityNotFoundException("Auditor not found"));
+        User auditor = userRepository
+            .findById(auditorId)
+            .orElseThrow(() ->
+                new EntityNotFoundException("Auditor not found")
+            );
 
         audit.setLeadAuditor(auditor);
         // Wizard Rule: In a real app, you'd send an email notification to the auditor
@@ -168,10 +208,13 @@ public class AuditServiceImpl implements AuditService {
     @Transactional
     public void submitControlResult(UUID auditId, AuditResultRequestDTO dto) {
         // This coordinates the AuditResult sub-resource
-        AuditResult result = auditResultRepository.findByAuditIdAndControlId(auditId, dto.controlId())
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Result slot not found"));
+        AuditResult result = auditResultRepository
+            .findByAuditIdAndControlId(auditId, dto.controlId())
+            .stream()
+            .findFirst()
+            .orElseThrow(() ->
+                new EntityNotFoundException("Result slot not found")
+            );
 
         result.setStatus(dto.status());
         result.setFindings(dto.findings());
@@ -181,7 +224,10 @@ public class AuditServiceImpl implements AuditService {
     // ---------------- HELPERS ----------------
 
     private Audit getAudit(UUID id) {
-        return auditRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Audit not found with ID: " + id));
+        return auditRepository
+            .findById(id)
+            .orElseThrow(() ->
+                new EntityNotFoundException("Audit not found with ID: " + id)
+            );
     }
 }

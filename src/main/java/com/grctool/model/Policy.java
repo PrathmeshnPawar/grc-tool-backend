@@ -1,10 +1,6 @@
 package com.grctool.model;
 
-import java.time.LocalDateTime;
-import java.util.Set;
-
 import com.grctool.enums.PolicyStatus;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,6 +9,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import java.time.LocalDateTime;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -40,10 +38,20 @@ public class Policy extends BaseEntity {
     private ComplianceFramework framework;
 
     @ManyToMany
-    @JoinTable(name = "policy_controls", joinColumns = @JoinColumn(name = "policy_id"), inverseJoinColumns = @JoinColumn(name = "control_id"))
+    @JoinTable(
+        name = "policy_controls",
+        joinColumns = @JoinColumn(name = "policy_id"),
+        inverseJoinColumns = @JoinColumn(name = "control_id")
+    )
     Set<ComplianceControl> controls;
 
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;
 
+    // Add these to your Policy model
+    @Column(name = "file_path")
+    private String filePath;
+
+    @Column(name = "is_processed")
+    private boolean isProcessed = false;
 }

@@ -1,19 +1,22 @@
 package com.grctool.dto.audit;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.grctool.enums.AuditStatus;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
-import com.grctool.enums.AuditStatus;
 
 public record AuditResponseDTO(
     UUID id,
     String name,
     LocalDate startDate,
     LocalDate endDate,
-    AuditStatus status,
-    UUID riskId,
-    UUID leadAuditorId,
-    Set<UUID> testedControlIds,
-    Set<UUID> reviewedPolicyIds,
-    String globalEvidenceSummary // NEW: Optional summary link for the whole audit
+    LocalDateTime createdAt, // 5th parameter - Matches your mapper's logic
+    AuditStatus status, // 6th
+    UUID riskId, // 7th
+    UUID leadAuditorId, // 8th
+    Set<UUID> testedControlIds, // 9th
+    Set<UUID> reviewedPolicyIds, // 10th
+    String globalEvidenceSummary // 11th
 ) {}

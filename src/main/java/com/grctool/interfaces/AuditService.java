@@ -1,16 +1,15 @@
 package com.grctool.interfaces;
 
-import java.util.List;
-import java.util.UUID;
-
 import com.grctool.dto.audit.AuditCreateDTO;
+import com.grctool.dto.audit.AuditLogResponseDTO;
 import com.grctool.dto.audit.AuditResponseDTO;
 import com.grctool.dto.audit.AuditResultRequestDTO;
 import com.grctool.dto.audit.AuditUpdateDTO;
 import com.grctool.enums.AuditStatus;
+import java.util.List;
+import java.util.UUID;
 
 public interface AuditService {
-
     AuditResponseDTO createAudit(AuditCreateDTO dto);
 
     AuditResponseDTO updateAudit(UUID auditId, AuditUpdateDTO dto);
