@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,13 +12,13 @@ import com.grctool.dto.incident.IncidentResponseDTO;
 import com.grctool.dto.incident.IncidentUpdateDTO;
 import com.grctool.enums.IncidentStatus;
 import com.grctool.enums.Role;
+import com.grctool.exception.userException.AccessDeniedException;
 import com.grctool.interfaces.IncidentService;
 import com.grctool.mapper.IncidentMapper;
 import com.grctool.model.Incident;
 import com.grctool.model.User;
 import com.grctool.repository.IncidentRepository;
 import com.grctool.repository.UserRepository;
-import com.grctool.exception.userException.AccessDeniedException;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -39,9 +38,16 @@ public class IncidentServiceImpl implements IncidentService {
                 .orElseThrow(() -> new EntityNotFoundException("Reporting User not found"));
         
         Incident incident = incidentMapper.toEntity(dto, reportedBy);
-        return incidentMapper.toResponse(incidentRepository.save(incident));
-    }
 
+        // 1. Capture the saved entity in a variable named 'saved'
+        Incident saved = incidentRepository.save(incident);
+
+        // 2. Perform the logging BEFORE the return
+       
+
+        // 3. Finally, map the 'saved' variable to the response
+        return incidentMapper.toResponse(saved);
+    }
     @Override
     @Transactional(readOnly = true)
     public IncidentResponseDTO getIncidentById(UUID incidentId) {

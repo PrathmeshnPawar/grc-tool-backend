@@ -7,53 +7,62 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.grctool.model.User;
+import com.grctool.repository.UserRepository;
 import com.grctool.service.auditService.AuditLogService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class AuthEventsListener {
+
     private final AuditLogService auditLogService;
+    private final UserRepository userRepository; // Added to identify the "Who"
 
     @EventListener
     public void onFailure(AbstractAuthenticationFailureEvent event) {
-        // 1. Capture request metadata on the current thread
+        String username = event.getAuthentication().getName();
         String[] metadata = getRequestMetadata();
         
-        // 2. Pass all 8 arguments to the service
+        // Use "User" as entity name even on failure for consistent filtering
         auditLogService.logAction(
-            "SYSTEM", 
+            "User", 
             null, 
-            "LOGIN_FAILURE", 
-            "Reason: " + event.getException().getMessage(), 
-            null, 
-            metadata[0], // IP
-            metadata[1], // UA
-            metadata[2]  // SID
-        );
-    }
-
-    @EventListener
-    public void onSuccess(AuthenticationSuccessEvent event) {
-        String[] metadata = getRequestMetadata();
-        
-        auditLogService.logAction(
-            "SYSTEM", 
-            null, 
-            "LOGIN_SUCCESS", 
-            "New session established", 
+            "AUTH_FAILURE", 
+            "Failed login attempt for user: " + username + " | Reason: " + event.getException().getMessage(), 
             null, 
             metadata[0], 
             metadata[1], 
             metadata[2]
         );
+        log.warn("Security: Authentication failure for user {} from IP {}", username, metadata[0]);
     }
 
-    /**
-     * Helper to safely extract metadata from the current web request.
-     */
+    @EventListener
+    public void onSuccess(AuthenticationSuccessEvent event) {
+        String email = event.getAuthentication().getName();
+        String[] metadata = getRequestMetadata();
+        
+        // Senior Move: Fetch the user entity to create a hard link in the Audit Log
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        auditLogService.logAction(
+            "User", 
+            user != null ? user.getId() : null, 
+            "AUTH_SUCCESS", 
+            "User session established successfully", 
+            user, 
+            metadata[0], 
+            metadata[1], 
+            metadata[2]
+        );
+        log.info("Security: Authentication success for user {}", email);
+    }
+
     private String[] getRequestMetadata() {
         ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attrs != null) {
@@ -64,6 +73,6 @@ public class AuthEventsListener {
                 request.getSession().getId()
             };
         }
-        return new String[] {"unknown", "unknown", "unknown"};
+        return new String[] {"0.0.0.0", "Internal-System", "N/A"};
     }
 }

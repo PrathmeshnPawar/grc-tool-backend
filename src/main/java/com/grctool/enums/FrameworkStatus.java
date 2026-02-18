@@ -1,11 +1,15 @@
 package com.grctool.enums;
 
-public enum ComplianceStatus {
+public enum FrameworkStatus {
     COMPLIANT,
     NON_COMPLIANT,
     PARTIAL,
     PENDING,
     NOT_APPLICABLE,
     EXEMPTED,
-    UNDER_REVIEW
+    UNDER_REVIEW,
+    ACTIVE,     
+    DEPRECATED, 
+    ARCHIVED,    
+    DRAFT
 }

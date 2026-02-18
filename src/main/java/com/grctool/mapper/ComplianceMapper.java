@@ -16,74 +16,84 @@ import com.grctool.model.ComplianceFramework;
 @Component
 public class ComplianceMapper {
 
-    // INBOUND: Create DTO -> Entity
+    // --- CONTROLS ---
+
     public ComplianceControl toEntity(ComplianceControlCreateDTO dto) {
-        if (dto == null)
-            return null;
+        if (dto == null) return null;
 
         ComplianceControl control = new ComplianceControl();
-        control.setName(dto.name()); // Record syntax: name() not getName()
+        control.setName(dto.name());
         control.setControlCode(dto.controlCode());
         control.setDescription(dto.description());
-        // Status is usually set to PENDING by default in the Service
         return control;
     }
 
-    // OUTBOUND: Entity -> Response DTO
     public ComplianceControlResponseDTO toControlResponse(ComplianceControl control) {
-        if (control == null)
-            return null;
+        if (control == null) return null;
         return new ComplianceControlResponseDTO(
-                control.getId(), control.getName(), control.getControlCode(),
-                control.getDescription(), control.getStatus(),
+                control.getId(), 
+                control.getName(), 
+                control.getControlCode(),
+                control.getDescription(), 
+                control.getStatus(),
                 control.getFramework() != null ? control.getFramework().getId() : null);
     }
 
-    // List helper
-    public List<ComplianceControlResponseDTO> toControlResponseList(
-            List<ComplianceControl> controls) {
+    public List<ComplianceControlResponseDTO> toControlResponseList(List<ComplianceControl> controls) {
+        if (controls == null) return Collections.emptyList();
         return controls.stream().map(this::toControlResponse).toList();
     }
 
-    // REFINED: Clear name and correct logic
+    // --- FRAMEWORKS ---
+
     public ComplianceFramework toEntity(ComplianceFrameworkCreateDTO dto) {
-        if (dto == null)
-            return null;
+        if (dto == null) return null;
 
-        // 1. Correct instantiation of the Entity Class
         ComplianceFramework framework = new ComplianceFramework();
-
-        // 2. Correct mapping from the immutable Record
         framework.setName(dto.name());
         framework.setVersion(dto.version());
         framework.setDescription(dto.description());
+        
+        // Professional Metadata Mapping
+        framework.setCategory(dto.category());
+        framework.setRegulatoryBody(dto.regulatoryBody());
+        framework.setReferenceLink(dto.referenceLink());
 
         return framework;
     }
 
     public void updateEntityFromDto(ComplianceFrameworkUpdateDTO dto, ComplianceFramework framework) {
-        if (dto == null || framework == null)
-            return;
+        if (dto == null || framework == null) return;
 
         dto.name().ifPresent(framework::setName);
         dto.version().ifPresent(framework::setVersion);
         dto.description().ifPresent(framework::setDescription);
-
+        
+        // Handling optional professional updates
+        dto.category().ifPresent(framework::setCategory);
+        dto.regulatoryBody().ifPresent(framework::setRegulatoryBody);
+        dto.referenceLink().ifPresent(framework::setReferenceLink);
     }
 
     public ComplianceFrameworkResponseDTO toFrameworkResponse(ComplianceFramework f) {
-        if (f == null)
-            return null;
+        if (f == null) return null;
+        
         return new ComplianceFrameworkResponseDTO(
-                f.getId(), f.getName(), f.getVersion(), f.getDescription());
+                f.getId(), 
+                f.getName(), 
+                f.getVersion(), 
+                f.getDescription(),
+                f.getStatus() != null ? f.getStatus().name() : "DRAFT", // Lifecycle Status
+                f.getCategory(),
+                f.getRegulatoryBody(),
+                f.getReferenceLink(),
+                f.getOwner() != null ? f.getOwner().getId() : null,
+                f.getOwner() != null ? f.getOwner().getName() : "Unassigned" // UX Benefit: Provide name
+        );
     }
 
-    // LIST HELPER
     public List<ComplianceFrameworkResponseDTO> toFrameworkResponseList(List<ComplianceFramework> frameworks) {
-        if (frameworks == null)
-            return Collections.emptyList();
-        return frameworks.stream()
-                .map(this::toFrameworkResponse)
-                .toList();
+        if (frameworks == null) return Collections.emptyList();
+        return frameworks.stream().map(this::toFrameworkResponse).toList();
     }
 }

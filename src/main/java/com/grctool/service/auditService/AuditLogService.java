@@ -1,16 +1,20 @@
 package com.grctool.service.auditService;
 
-import com.grctool.dto.audit.AuditLogResponseDTO; // Updated import
+import java.util.List; // Updated import
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.grctool.dto.audit.AuditLogResponseDTO;
 import com.grctool.model.AuditLog;
 import com.grctool.model.BaseEntity;
 import com.grctool.model.User;
 import com.grctool.repository.AuditLogRepository;
-import java.util.List;
-import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -46,18 +50,25 @@ public class AuditLogService {
      * Captures metadata from the current request thread.
      */
     public void logChange(BaseEntity entity, String details, User user) {
-        jakarta.servlet.http.HttpServletRequest request = (
-            (org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder.getRequestAttributes()
-        ).getRequest();
+        // Senior Guard: Attributes can be null if called from an internal or background thread
+        var attrs = (org.springframework.web.context.request.ServletRequestAttributes) 
+                    org.springframework.web.context.request.RequestContextHolder.getRequestAttributes();
 
-        String ip = request.getRemoteAddr();
-        String ua = request.getHeader("User-Agent");
-        String sid = request.getSession().getId();
+        String ip = "0.0.0.0";
+        String ua = "Internal-System";
+        String sid = "N/A";
+
+        if (attrs != null) {
+            jakarta.servlet.http.HttpServletRequest request = attrs.getRequest();
+            ip = request.getRemoteAddr();
+            ua = request.getHeader("User-Agent");
+            sid = request.getSession().getId();
+        }
 
         logAction(
             entity.getClass().getSimpleName(),
             entity.getId(),
-            "UPDATE",
+            "PERSIST",
             details,
             user,
             ip,
@@ -69,7 +80,8 @@ public class AuditLogService {
     /**
      * Persists the log on a separate background thread.
      */
-    @Async
+    @Async("taskExecutor")
+    @Transactional
     public void logAction(
         String entityName,
         java.util.UUID entityId,

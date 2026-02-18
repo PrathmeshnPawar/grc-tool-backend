@@ -1,9 +1,9 @@
 package com.grctool.dto.compliance;
 
-import com.grctool.enums.ComplianceStatus;
+import com.grctool.enums.FrameworkStatus;
 
 public record ComplianceControlUpdateDTO(
         String name,
         String description,
-        ComplianceStatus status
+        FrameworkStatus status
 ) {}

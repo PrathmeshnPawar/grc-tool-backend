@@ -15,5 +15,6 @@ public record IncidentResponseDTO(
         IncidentStatus status,
         LocalDate dateReported,
         UUID reportedById,
+        String reportedByName,
         Set<UUID> riskIds
 ) {}

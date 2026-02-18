@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.grctool.dto.compliance.ComplianceControlCreateDTO;
 import com.grctool.dto.compliance.ComplianceControlResponseDTO;
-import com.grctool.enums.ComplianceStatus;
+import com.grctool.enums.FrameworkStatus;
 import com.grctool.interfaces.ComplianceControlService;
 import com.grctool.mapper.ComplianceMapper;
 import com.grctool.model.ComplianceControl;
@@ -39,7 +39,7 @@ public class ComplianceControlServiceImpl implements ComplianceControlService {
         
         // 3. Set business logic fields
         control.setFramework(framework);
-        control.setStatus(ComplianceStatus.PENDING);
+        control.setStatus(FrameworkStatus.PENDING);
 
         // 4. Save and Map back to Response
         return mapper.toControlResponse(controlRepository.save(control));
@@ -47,7 +47,7 @@ public class ComplianceControlServiceImpl implements ComplianceControlService {
 
     @Override
     @Transactional // Required to persist the status change
-    public void changeControlStatus(UUID controlId, ComplianceStatus status) {
+    public void changeControlStatus(UUID controlId, FrameworkStatus status) {
         ComplianceControl control = controlRepository.findById(controlId)
                 .orElseThrow(() -> new EntityNotFoundException("Control not found"));
 

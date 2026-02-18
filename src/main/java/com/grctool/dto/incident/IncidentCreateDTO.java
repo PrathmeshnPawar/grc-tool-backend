@@ -10,5 +10,6 @@ public record IncidentCreateDTO(
         String description,
         IncidentSeverity severity,
         LocalDate dateReported,
+        String reportedBy,
         UUID reportedById
 ) {}

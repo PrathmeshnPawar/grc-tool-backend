@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.grctool.dto.compliance.ComplianceControlCreateDTO;
 import com.grctool.dto.compliance.ComplianceControlResponseDTO;
-import com.grctool.enums.ComplianceStatus;
+import com.grctool.enums.FrameworkStatus;
 import com.grctool.interfaces.ComplianceControlService;
 
 
@@ -43,7 +43,7 @@ public class ComplianceControlController {
     @PatchMapping("/controls/{controlId}/status")
     public void changeControlStatus(
             @PathVariable UUID controlId,
-            @RequestParam ComplianceStatus status
+            @RequestParam FrameworkStatus status
     ) {
         complianceService.changeControlStatus(controlId, status);
     }

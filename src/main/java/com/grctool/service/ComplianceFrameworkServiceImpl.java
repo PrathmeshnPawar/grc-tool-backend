@@ -9,10 +9,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.grctool.dto.compliance.ComplianceFrameworkCreateDTO;
 import com.grctool.dto.compliance.ComplianceFrameworkResponseDTO;
 import com.grctool.dto.compliance.ComplianceFrameworkUpdateDTO;
+import com.grctool.enums.FrameworkStatus;
 import com.grctool.interfaces.ComplianceFrameworkService;
 import com.grctool.mapper.ComplianceMapper;
 import com.grctool.model.ComplianceFramework;
+import com.grctool.model.User;
 import com.grctool.repository.ComplianceFrameworkRepository;
+import com.grctool.repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +26,26 @@ public class ComplianceFrameworkServiceImpl implements ComplianceFrameworkServic
 
     private final ComplianceFrameworkRepository frameworkRepository;
     private final ComplianceMapper mapper;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional
     public ComplianceFrameworkResponseDTO createFramework(ComplianceFrameworkCreateDTO dto) {
-        ComplianceFramework framework = frameworkRepository.save(mapper.toEntity(dto));
-        return mapper.toFrameworkResponse(framework);
+        // 1. Map basic fields to Entity
+        ComplianceFramework framework = mapper.toEntity(dto);
+
+        // 2. Set default Lifecycle state
+        framework.setStatus(FrameworkStatus.DRAFT);
+
+        // 3. Resolve and Link the Owner
+        if (dto.ownerId() != null) {
+            User owner = userRepository.findById(dto.ownerId())
+                    .orElseThrow(() -> new EntityNotFoundException("Owner not found"));
+            framework.setOwner(owner);
+        }
+
+        // 4. Persist and return response
+        return mapper.toFrameworkResponse(frameworkRepository.save(framework));
     }
 
     // ADD THIS METHOD TO RESOLVE THE ERROR

@@ -65,11 +65,20 @@ public class OCRService {
     }
 
     private void finishProcessing(UUID policyId, String content) {
-        policyRepository.findById(policyId).ifPresent(policy -> {
-            policy.setContent(content);
-            policy.setProcessed(true); // Signal the UI to stop the spinner
-            policyRepository.save(policy);
-            log.debug("Database updated for policy: {}", policyId);
-        });
-    }
+    policyRepository.findById(policyId).ifPresent(policy -> {
+        // 1. Explicitly clean the title
+        String currentTitle = policy.getTitle();
+        if (currentTitle != null && currentTitle.startsWith("PENDING OCR: ")) {
+            policy.setTitle(currentTitle.replace("PENDING OCR: ", ""));
+        }
+        
+        // 2. Set the status flags
+        policy.setContent(content);
+        policy.setProcessed(true);
+        
+        // 3. Persist the changes
+        policyRepository.save(policy);
+        log.info("Successfully processed policy and cleaned title: {}", policy.getTitle());
+    });
+}
 }

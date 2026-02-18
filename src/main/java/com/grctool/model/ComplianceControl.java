@@ -2,7 +2,7 @@ package com.grctool.model;
 
 import java.util.Set;
 
-import com.grctool.enums.ComplianceStatus;
+import com.grctool.enums.FrameworkStatus;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -25,7 +25,7 @@ public class ComplianceControl extends BaseEntity {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    private ComplianceStatus status;
+    private FrameworkStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "framework_id")

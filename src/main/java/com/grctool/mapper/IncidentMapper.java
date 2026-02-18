@@ -39,6 +39,7 @@ public class IncidentMapper {
         if (incident == null)
             return null;
 
+        // Inside your IncidentServiceImpl or Manual Mapper
         return new IncidentResponseDTO(
                 incident.getId(),
                 incident.getTitle(),
@@ -46,7 +47,11 @@ public class IncidentMapper {
                 incident.getSeverity(),
                 incident.getStatus(),
                 incident.getDateReported(),
+                // 7th: UUID reportedById
                 incident.getReportedBy() != null ? incident.getReportedBy().getId() : null,
+                // 8th: String reportedByName (THIS WAS MISSING)
+                incident.getReportedBy() != null ? incident.getReportedBy().getName() : "System",
+                // 9th: Set<UUID> riskIds
                 incident.getRisks() != null
                         ? incident.getRisks().stream().map(Risk::getId).collect(Collectors.toSet())
                         : java.util.Set.of());
