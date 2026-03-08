@@ -1,5 +1,6 @@
 
-
+ALTER TABLE permissions
+    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP;
 -- 1. Insert Core GRC Permissions
 -- We use ON CONFLICT to avoid duplicate key errors if the script is re-run
 INSERT INTO permissions (id, name, created_at, updated_at) VALUES 
